@@ -1,15 +1,26 @@
-import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { DogsModule } from './dogs/dogs.module';
 import { ConfigModule } from '@nestjs/config';
+import { DogsModule } from './dogs/dogs.module';
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import * as Joi from '@hapi/joi';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env.local',
+      validationSchema: Joi.object({
+        DB_HOST: Joi.string().required(),
+        DB_PORT: Joi.number().default(5432),
+        DB_USER: Joi.string().required(),
+        DB_PASSWORD: Joi.string().required(),
+        DB_NAME: Joi.string().required(),
+        JWT_SECRET: Joi.string().required(),
+        JWT_EXPIRES_IN: Joi.string().required(),
+      }),
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -23,6 +34,7 @@ import { ConfigModule } from '@nestjs/config';
     }),
     UsersModule,
     DogsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
